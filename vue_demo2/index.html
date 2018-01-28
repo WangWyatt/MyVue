@@ -104,7 +104,6 @@
                 props: ['todo'],
                 methods: {
                     edit: function () {
-                        console.log(this.todo);
                         this.$emit('onedit', this.todo.id);
                     },
                     remove: function () {
@@ -119,13 +118,17 @@
                 template: `
                 <div class="col-md-6">
                     <table class="table table-bordered">
-                        <tr>
-                            <th></th>
-                            <th>title</th>
-                            <th>desc</th>
-                            <th></th>
-                        </tr>
-                        <todo-item v-for="item in items" :todo="item" :key="item.id" @onedit="edit($event)" @onremove="remove($event)"></todo-item>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>title</th>
+                                <th>desc</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <todo-item v-for="item in items" :todo="item" :key="item.id" @onedit="edit($event)" @onremove="remove($event)"></todo-item>
+                        </tbody>
                     </table>
                 </div>
             `,
@@ -151,7 +154,7 @@
                     <div class="container">
                         <search-bar @onsearch="search($event)"></search-bar>
                         <div class="row">
-                            <todo-list :items="items" @onremove="remove($event)" @onedit="edit($event)"><todo-list>
+                            <todo-list :items="items" @onremove="remove($event)" @onedit="edit($event)"></todo-list>
                             <todo-form :init-item="initItem" @onsave="save($event)"></todo-form>
                         </div>
                     </div>
@@ -188,7 +191,7 @@
                         return this.items.filter(v => v.id === id)[0] || {};
                     },
                     search: function ($e) {
-                        this.items = list.filter(v => v.indexOf($e) !== -1);
+                        this.items = list.filter(v => v.title.indexOf($e) !== -1);
                     },
                     save: function ($e) {
                         if (this.initItem.id) {
@@ -207,7 +210,7 @@
                         this._mock_save(this.items);
                     },
                     edit: function ($e) {
-                        this.initItem = this.findById($e.id);
+                        this.initItem = this.findById($e);
                     }
                 }
             }
