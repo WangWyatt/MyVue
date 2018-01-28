@@ -16,7 +16,7 @@
         <todo-container></todo-container>
     </div>
     <script>
-        ;(function () {
+        ; (function () {
             var list = [];
             var Todo = (function () {
                 var id = 1;
@@ -60,11 +60,11 @@
                     <div class="form-inline">
                         <label for="title" class="control-label col-md-4">title:</label>
                         <input type="hidden" v-bind:value="todo.id" />
-                        <input type="text" v-model="todo.title" class="form-control col-md-8" />
+                        <input type="text" v-model="todo.title" class="form-control col-md-8">
                     </div>
                     <div class="form-inline">
                         <label for="desc" class="control-label col-md-4">desc:</label>
-                        <input type="text" v-model="todo.desc" class="form-control col-md-8" />
+                        <input type="text" v-model="todo.desc" class="form-control col-md-8">
                     </div>
                     <div class="form-inline">
                         <input type="button" value="OK" v-on:click="ok()" class="btn btn-primary offset-md-10" />
@@ -75,11 +75,7 @@
 
                 computed: {
                     todo: function () {
-                        return {
-                            id: this.initItem.id,
-                            title: this.initItem.title,
-                            desc: this.initItem.desc
-                        }
+                        return { id: this.initItem.id, title: this.initItem.title, desc: this.initItem.desc };
                     }
                 },
 
