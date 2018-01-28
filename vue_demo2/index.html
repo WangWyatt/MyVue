@@ -26,10 +26,9 @@
                     this.id = id++;
                 }
             })();
-
             /**
             * 搜索组件
-            **/
+            */
             var SearchBar = {
                 template: `
                 <div class="row toolbar">
@@ -50,11 +49,11 @@
                         this.$emit('onsearch', this.keyword);
                     }
                 }
-            }
 
+            }
             /**
-            *表单组件
-            **/
+            * 表单组件
+            */
             var TodoForm = {
                 template: `
                 <div class="col-md-6">
@@ -73,6 +72,7 @@
                 </div>
             `,
                 props: ['initItem'],
+
                 computed: {
                     todo: function () {
                         return {
@@ -82,13 +82,17 @@
                         }
                     }
                 },
+
                 methods: {
                     ok: function () {
                         this.$emit('onsave', this.todo);
+
                     }
                 }
             }
-
+            /**
+            * 列表项组件
+            */
             var TodoItem = {
                 template: `
                 <tr>
@@ -104,6 +108,7 @@
                 props: ['todo'],
                 methods: {
                     edit: function () {
+                        console.log(this.todo);
                         this.$emit('onedit', this.todo.id);
                     },
                     remove: function () {
@@ -111,22 +116,20 @@
                     }
                 }
             }
-
+            /**
+            * 列表组件
+            */
             var TodoList = {
                 template: `
                 <div class="col-md-6">
                     <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>title</th>
-                                <th>desc</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <todo-item v-for="item in items" :todo="item" :key="item.id" @onedit="edit($event)" @onremove="remove($event)"></todo-item>
-                        </tbody>
+                        <tr>
+                            <th></th>
+                            <th>title</th>
+                            <th>desc</th>
+                            <th></th>
+                        </tr>
+                        <todo-item v-for="item in items" :todo="item" :key="item.id" @onedit="edit($event)" @onremove="remove($event)"></todo-item>
                     </table>
                 </div>
             `,
@@ -143,7 +146,10 @@
                     }
                 }
             }
-
+            /**
+            * 容器组件
+            * 说明：容器组件包括三个字组件
+            */
             var TodoContainer = {
                 template: `
                     <div class="container">
@@ -156,7 +162,16 @@
                 `,
                 data: function () {
                     return {
+                        /**
+                        * Todolist数据列表
+                        * 说明：通过props传入到Todolist组件中，让组件进行渲染
+                        */
                         items: [],
+                        /**
+                        * TodoForm初始化数据
+                        * 说明：由于TodoForm包括两种操作：新增和编辑；新增操作无需处理，编辑操作需要进行数据绑定，这里通过传入initItem属性进行编辑时数据的初始化
+                        * 如果传入的值为空，说明为新增操作，由initItem参数的Id是否为空，来确认是更新保存还是新增保存
+                        */
                         initItem: {
                             title: '',
                             desc: '',
@@ -165,9 +180,9 @@
                     }
                 },
                 components: {
-                    'search-bar': SearchBar,
-                    'todo-form': TodoForm,
-                    'todo-list': TodoList
+                    'search-bar': SearchBar,/**SearchBar组件注册 */
+                    'todo-form': TodoForm,/**TodoForm组件注册 */
+                    'todo-list': TodoList/**TodoList组件注册 */
                 },
                 methods: {
                     _mock_save: function (lst) {
