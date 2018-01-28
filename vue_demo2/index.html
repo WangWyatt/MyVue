@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+
+</head>
+
+<body class="container">
+    <div id="app" class='row'>
+        <todo-container></todo-container>
+    </div>
+    <script>
+        ;(function () {
+            var list = [];
+            var Todo = (function () {
+                var id = 1;
+                return function (title, desc) {
+                    this.title = title;
+                    this.desc = desc;
+                    this.id = id++;
+                }
+            })();
+
+            /**
+            * 搜索组件
+            **/
+            var SearchBar = {
+                template: `
+                <div class="row toolbar">
+                    <div class="col-md-8">
+                        keyword：
+                        <input type="text" v-model="keyword" />
+                        <input type="button" @click="search()" value="search" class="btn btn-primary" />
+                    </div>
+                </div>
+            `,
+                data: function () {
+                    return {
+                        keyword: ''
+                    }
+                },
+                methods: {
+                    search: function () {
+                        this.$emit('onsearch', this.keyword);
+                    }
+                }
+            }
+
+            /**
+            *表单组件
+            **/
+            var TodoForm = {
+                template: `
+                <div class="col-md-6">
+                    <div class="form-inline">
+                        <label for="title" class="control-label col-md-4">title:</label>
+                        <input type="hidden" v-bind:value="todo.id" />
+                        <input type="text" v-model="todo.title" class="form-control col-md-8" />
+                    </div>
+                    <div class="form-inline">
+                        <label for="desc" class="control-label col-md-4">desc:</label>
+                        <input type="text" v-model="todo.desc" class="form-control col-md-8" />
+                    </div>
+                    <div class="form-inline">
+                        <input type="button" value="OK" v-on:click="ok()" class="btn btn-primary offset-md-10" />
+                    </div>
+                </div>
+            `,
+                props: ['initItem'],
+                computed: {
+                    todo: function () {
+                        return {
+                            id: this.initItem.id,
+                            title: this.initItem.title,
+                            desc: this.initItem.desc
+                        }
+                    }
+                },
+                methods: {
+                    ok: function () {
+                        this.$emit('onsave', this.todo);
+                    }
+                }
+            }
+
+            var TodoItem = {
+                template: `
+                <tr>
+                    <td>{{todo.id}}</td>
+                    <td>{{todo.title}}</td>
+                    <td>{{todo.desc}}</td>
+                    <td>
+                        <input type="button" value="remove" @click="remove()" class="btn btn-danger" />
+                        <input type="button" value="edit" @click="edit()" class="btn btn-info" />
+                    </td>
+                </tr>
+            `,
+                props: ['todo'],
+                methods: {
+                    edit: function () {
+                        this.$emit('onedit', this.todo.id);
+                    },
+                    remove: function () {
+                        this.$emit('onremove', this.todo.id);
+                    }
+                }
+            }
+
+            var TodoList = {
+                template: `
+                <div class="col-md-6">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>title</th>
+                                <th>desc</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <todo-item v-for="item in items" :todo="item" :key="item.id" @onedit="edit($event)" @onremove="remove($event)"></todo-item>
+                        </tbody>
+                    </table>
+                </div>
+            `,
+                props: ['items'],
+                components: {
+                    "todo-item": TodoItem
+                },
+                methods: {
+                    edit: function ($e) {
+                        this.$emit("onedit", $e)
+                    },
+                    remove: function ($e) {
+                        this.$emit("onremove", $e)
+                    }
+                }
+            }
+
+            var TodoContainer = {
+                template: `
+                    <div class="container">
+                        <search-bar @onsearch="search($event)"></search-bar>
+                        <div class="row">
+                            <todo-list :items="items" @onremove="remove($event)" @onedit="edit($event)"><todo-list>
+                            <todo-form :init-item="initItem" @onsave="save($event)"></todo-form>
+                        </div>
+                    </div>
+                `,
+                data: function () {
+                    return {
+                        items: [],
+                        initItem: {
+                            title: '',
+                            desc: '',
+                            id: ''
+                        }
+                    }
+                },
+                components: {
+                    'search-bar': SearchBar,
+                    'todo-form': TodoForm,
+                    'todo-list': TodoList
+                },
+                methods: {
+                    _mock_save: function (lst) {
+                        list = lst;
+                    },
+                    findById: function (id) {
+                        return this.items.filter(v => v.id === id)[0] || {};
+                    },
+                    search: function ($e) {
+                        this.items = list.filter(v => v.indexOf($e) !== -1);
+                    },
+                    save: function ($e) {
+                        if (this.initItem.id) {
+                            var o = this.findById($e.id);
+                            o.title = $e.title;
+                            o.desc = $e.desc;
+                        } else {
+                            this.items.push(new Todo($e.title, $e.desc));
+
+                        }
+                        this.initItem = { id: '', title: '', desc: '' };
+                        this._mock_save(this.items);
+                    },
+                    remove: function ($e) {
+                        this.items = this.items.filter(v => v.id !== $e);
+                        this._mock_save(this.items);
+                    },
+                    edit: function ($e) {
+                        this.initItem = this.findById($e.id);
+                    }
+                }
+            }
+
+            new Vue({
+                el: '#app',
+                components: {
+                    'todo-container': TodoContainer
+                }
+            })
+        })()
+
+    </script>
+</body>
+
+</html>
